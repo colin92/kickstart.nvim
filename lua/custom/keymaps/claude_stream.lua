@@ -21,11 +21,11 @@ local function parse_sse_event(line, buffer)
 end
 
 function M.stream_claude_response(prompt)
-  local handle = io.popen('get_claude_api_key')
+  local handle = io.popen 'get_claude_api_key'
   local api_key = handle:read '*a'
   handle:close()
   api_key = api_key:gsub('^%s*(.-)%s*$', '%1')
-  
+
   if not api_key or api_key == '' then
     vim.notify('Failed to get Claude API key from get_claude_api_key command', vim.log.levels.ERROR)
     return
@@ -33,7 +33,8 @@ function M.stream_claude_response(prompt)
 
   vim.cmd 'vsplit'
   local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_win_set_buf(0, buf)
+  local win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(win, buf)
 
   vim.bo[buf].buftype = 'nofile'
   vim.bo[buf].bufhidden = 'wipe'
@@ -87,6 +88,14 @@ function M.stream_claude_response(prompt)
                   current_text = current_text .. text
                   local display_lines = vim.split(current_text, '\n', { plain = true })
                   vim.api.nvim_buf_set_lines(buf, 0, -1, false, display_lines)
+
+                  if vim.api.nvim_win_is_valid(win) then
+                    local line_count = vim.api.nvim_buf_line_count(buf)
+                    vim.api.nvim_win_set_cursor(win, { line_count, 0 })
+                    vim.api.nvim_win_call(win, function()
+                      vim.cmd 'normal! zb'
+                    end)
+                  end
                 end)
               end
             end
@@ -100,14 +109,20 @@ function M.stream_claude_response(prompt)
     on_exit = function(_, exit_code)
       vim.schedule(function()
         if exit_code ~= 0 then
-          vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'Error: Failed to connect to Anthropic API', 'Exit code: ' .. exit_code, 'Current text: ' .. current_text })
+          vim.api.nvim_buf_set_lines(
+            buf,
+            0,
+            -1,
+            false,
+            { 'Error: Failed to connect to Anthropic API', 'Exit code: ' .. exit_code, 'Current text: ' .. current_text }
+          )
         elseif current_text == '' then
           vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'Error: No content received from API' })
         end
       end)
     end,
   })
-  
+
   if job_id <= 0 then
     vim.notify('Failed to start job', vim.log.levels.ERROR)
   end
@@ -117,7 +132,7 @@ function M.prompt_and_stream()
   local prompt_buf = vim.api.nvim_create_buf(false, true)
 
   local width = 80
-  local height = 5
+  local height = 1
   local win = vim.api.nvim_open_win(prompt_buf, true, {
     relative = 'editor',
     width = width,
