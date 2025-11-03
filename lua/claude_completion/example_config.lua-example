@@ -1,0 +1,66 @@
+-- Minimal configuration example for claude_completion.lua
+-- Place this in your Neovim configuration (e.g., ~/.config/nvim/lua/plugins/claude.lua)
+
+return {
+  setup_minimal = function()
+    require("claude_completion").setup({
+      -- Essential configuration only
+      api_key_cmd = 'echo $CLAUDE_API_KEY',  -- Change to your method
+      model = 'claude-haiku-4-5-20251001',   -- Fast model
+      debounce_ms = 1500,                    -- Wait 1.5s before triggering
+    })
+  end,
+
+  setup_recommended = function()
+    require("claude_completion").setup({
+      -- Recommended balanced configuration
+      api_key_cmd = 'get_claude_api_key',
+      model = 'claude-haiku-4-5-20251001',
+      max_tokens = 512,                      -- Smaller for faster response
+      debounce_ms = 1000,
+      max_context_lines = 50,                -- Balanced context
+      auto_trigger_chars = { '.', ':' },     -- Only essential triggers
+      min_chars_before_cursor = 5,           -- Avoid premature triggers
+      cache_completions = true,
+      debug_mode = false,
+    })
+  end,
+
+  setup_power_user = function()
+    require("claude_completion").setup({
+      -- Configuration for power users
+      api_key_cmd = 'pass show claude-api-key',
+      model = 'claude-opus-4-1-20250805',   -- Most capable model
+      max_tokens = 2048,
+      debounce_ms = 500,                     -- Quick triggers
+      max_context_lines = 200,               -- Maximum context
+      auto_trigger_chars = { '.', ':', '(', '{', '[', ' ', '=' },
+      min_chars_before_cursor = 2,
+      cache_completions = true,
+      max_cache_size = 100,
+      api_timeout = 60000,                   -- Longer timeout for complex completions
+      debug_mode = true,                     -- Enable debugging
+    })
+  end,
+
+  -- Example for lazy.nvim users
+  lazy_config = {
+    dir = "~/.config/nvim/lua/claude_completion",
+    name = "claude-completion",
+    event = "InsertEnter",
+    config = function()
+      require("claude_completion").setup({
+        api_key_cmd = 'echo $CLAUDE_API_KEY',
+        model = 'claude-haiku-4-5-20251001',
+        debounce_ms = 1000,
+        cache_completions = true,
+      })
+    end,
+    keys = {
+      { "<C-y>", mode = "i", desc = "Accept Claude completion" },
+      { "<C-e>", mode = "i", desc = "Dismiss Claude completion" },
+      { "<C-Space>", mode = "i", desc = "Trigger Claude completion" },
+    },
+    cmd = { "ClaudeDebug", "ClaudeClearCache", "ClaudeStatus" },
+  },
+}

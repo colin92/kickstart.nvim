@@ -3,7 +3,7 @@ local M = {}
 local DEBUG_MODE = false
 
 local ns_id = vim.api.nvim_create_namespace 'claude_completion'
-local model = 'claude-haiku-4-5-lastest'
+local model = 'claude-haiku-4-5-20251001'
 local current_suggestion = nil
 local pending_request = nil
 local last_cursor_pos = nil
@@ -289,6 +289,8 @@ Provide only the completion code in a fenced code block, nothing else.
             end
           else
             debug_log 'Failed to decode JSON response or missing content'
+            debug_log 'Response:'
+            debug_log(response_text)
           end
         end)
       else
