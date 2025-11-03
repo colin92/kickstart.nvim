@@ -1057,7 +1057,10 @@ require('lazy').setup({
 
 require 'custom.keymaps'
 
-pcall(require, 'custom.local')
+local local_config = vim.fn.stdpath('config') .. '/lua/custom/local/init.lua'
+if vim.fn.filereadable(local_config) == 1 then
+  require 'custom.local'
+end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
