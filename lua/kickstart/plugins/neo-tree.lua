@@ -12,7 +12,7 @@ return {
   lazy = false,
   keys = {
     { '<leader>nn', ':Neotree toggle<CR>', desc = 'NeoTree reveal', silent = true },
-    { '<leader>nd', ':Neotree document_symbols<CR>', desc = 'NeoTree reveal', silent = true },
+    { '<leader>nd', ':Neotree document_symbols<CR>', desc = 'NeoTree reveal symbols', silent = true },
   },
   opts = {
     sources = {

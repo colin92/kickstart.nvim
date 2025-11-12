@@ -1057,7 +1057,7 @@ require('lazy').setup({
 
 require 'custom.keymaps'
 
-local local_config = vim.fn.stdpath('config') .. '/lua/custom/local/init.lua'
+local local_config = vim.fn.stdpath 'config' .. '/lua/custom/local/init.lua'
 if vim.fn.filereadable(local_config) == 1 then
   require 'custom.local'
 end
